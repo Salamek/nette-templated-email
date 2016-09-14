@@ -4,6 +4,7 @@ namespace Salamek\TemplatedEmail;
 
 use Nette\Http\Request;
 use Nette\IOException;
+use Nette\Localization\ITranslator;
 use Nette\Mail\IMailer;
 use Nette\Mail\Message;
 use Nette\Utils\Strings;
@@ -25,7 +26,7 @@ class TemplatedEmail extends Object
     /** @var string */
     private $template = '';
 
-    /** @var null| */
+    /** @var null|ITranslator */
     private $translator = null;
 
     /** @var null|array */
@@ -61,8 +62,17 @@ class TemplatedEmail extends Object
     /** @var IMailer */
     private $mailer;
 
-
-    public function __construct($sendEmailDebugStorage, $templateStorage, $fromName, $fromEmail, Request $httpRequest, IMailer $mailer)
+    /**
+     * TemplatedEmail constructor.
+     * @param $sendEmailDebugStorage
+     * @param $templateStorage
+     * @param $fromName
+     * @param $fromEmail
+     * @param Request $httpRequest
+     * @param IMailer $mailer
+     * @param ITranslator|null $translator
+     */
+    public function __construct($sendEmailDebugStorage, $templateStorage, $fromName, $fromEmail, Request $httpRequest, IMailer $mailer, ITranslator $translator = null)
     {
         $this->sendEmailDebugStorage = $sendEmailDebugStorage;
         $this->templateStorage = $templateStorage;
@@ -70,6 +80,7 @@ class TemplatedEmail extends Object
         $this->fromEmail = $fromEmail;
         $this->httpRequest = $httpRequest;
         $this->mailer = $mailer;
+        $this->translator = $translator;
 
         $this->mkdir($sendEmailDebugStorage);
         $this->mkdir($templateStorage);
@@ -92,8 +103,10 @@ class TemplatedEmail extends Object
         return $this;
     }
 
-
-    public function setTranslator($translator)
+    /**
+     * @param ITranslator $translator
+     */
+    public function setTranslator(ITranslator $translator)
     {
         $this->translator = $translator;
     }

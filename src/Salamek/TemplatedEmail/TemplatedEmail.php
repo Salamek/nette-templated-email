@@ -2,6 +2,8 @@
 
 namespace Salamek\TemplatedEmail;
 
+use Nette\Application\Application;
+use Nette\Bridges\ApplicationLatte\UIMacros;
 use Nette\Http\Request;
 use Nette\IOException;
 use Nette\Localization\ITranslator;
@@ -59,6 +61,12 @@ class TemplatedEmail extends Object
     /** @var string */
     private $fromEmail;
 
+    /** @var Application */
+    private $application;
+
+    /** @var \Nette\Application\IPresenter */
+    private $presenter;
+
     /** @var IMailer */
     private $mailer;
 
@@ -72,7 +80,7 @@ class TemplatedEmail extends Object
      * @param IMailer $mailer
      * @param ITranslator|null $translator
      */
-    public function __construct($sendEmailDebugStorage, $templateStorage, $fromName, $fromEmail, Request $httpRequest, IMailer $mailer, ITranslator $translator = null)
+    public function __construct($sendEmailDebugStorage, $templateStorage, $fromName, $fromEmail, Request $httpRequest, IMailer $mailer, Application $application, ITranslator $translator = null)
     {
         $this->sendEmailDebugStorage = $sendEmailDebugStorage;
         $this->templateStorage = $templateStorage;
@@ -80,6 +88,8 @@ class TemplatedEmail extends Object
         $this->fromEmail = $fromEmail;
         $this->httpRequest = $httpRequest;
         $this->mailer = $mailer;
+        $this->application = $application;
+        $this->presenter = $application->getPresenter();
         $this->translator = $translator;
 
         $this->mkdir($sendEmailDebugStorage);
@@ -279,6 +289,12 @@ class TemplatedEmail extends Object
         if ($this->translator) {
             $latte->addFilter('translate', $this->translator === null ? null : [$this->translator, 'translate']);
         }
+
+        
+        $latte->addProvider('uiPresenter', $this->presenter);
+        $latte->addProvider('uiControl', $this->presenter);
+
+        UIMacros::install($latte->getCompiler());
 
         $mail->setHtmlBody($latte->renderToString($this->template, $this->parameters), $this->templateStorage.'/images');
 

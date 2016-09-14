@@ -98,7 +98,6 @@ class TemplatedEmail extends Object
         $this->addTemplate($this->templateStorage . '/@layout.latte');
         $this->addTemplate($this->templateStorage . '/' . $name . '.latte');
         $this->setParameters($parameters[0]);
-        Debugger::barDump('CALL TE');
 
         return $this;
     }

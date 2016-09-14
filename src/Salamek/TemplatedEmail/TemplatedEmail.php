@@ -3,19 +3,20 @@
 namespace Salamek\TemplatedEmail;
 
 use Nette\Http\Request;
+use Nette\IOException;
+use Nette\Mail\IMailer;
 use Nette\Mail\Message;
-use Nette\Mail\SendmailMailer;
-use Nette\Mail\SmtpMailer;
 use Nette\Utils\Strings;
 use Latte\Loaders\StringLoader;
 use Latte\Engine;
 use Tracy\Debugger;
+use Nette\Object;
 
 /**
  * Class TemplatedEmail
  * @package Salamek\TemplatedEmail
  */
-class TemplatedEmail extends Nette\Object
+class TemplatedEmail extends Object
 {
 
     /** @var Request */
@@ -45,6 +46,7 @@ class TemplatedEmail extends Nette\Object
     /** @var array */
     private $addAttachment = [];
 
+    /** @var string */
     private $sendEmailDebugStorage;
 
     /** @var string */
@@ -56,10 +58,11 @@ class TemplatedEmail extends Nette\Object
     /** @var string */
     private $fromEmail;
 
+    /** @var IMailer */
     private $mailer;
 
 
-    public function __construct($sendEmailDebugStorage, $templateStorage, $fromName, $fromEmail, Request $httpRequest, Mailer $mailer)
+    public function __construct($sendEmailDebugStorage, $templateStorage, $fromName, $fromEmail, Request $httpRequest, IMailer $mailer)
     {
         $this->sendEmailDebugStorage = $sendEmailDebugStorage;
         $this->templateStorage = $templateStorage;
@@ -67,7 +70,28 @@ class TemplatedEmail extends Nette\Object
         $this->fromEmail = $fromEmail;
         $this->httpRequest = $httpRequest;
         $this->mailer = $mailer;
+
+        $this->mkdir($sendEmailDebugStorage);
+        $this->mkdir($templateStorage);
     }
+
+    /**
+     * @param $name
+     * @param $parameters
+     * @throws \Exception
+     * @return TemplatedEmail
+     */
+    public function __call($name, $parameters)
+    {
+        $this->reset();
+        $this->addTemplate($this->templateStorage . '/@layout.latte');
+        $this->addTemplate($this->templateStorage . '/' . $name . '.latte');
+        $this->setParameters($parameters[0]);
+        Debugger::barDump('CALL TE');
+
+        return $this;
+    }
+
 
     public function setTranslator($translator)
     {
@@ -244,7 +268,7 @@ class TemplatedEmail extends Nette\Object
             $latte->addFilter('translate', $this->translator === null ? null : [$this->translator, 'translate']);
         }
 
-        $mail->setHtmlBody($latte->renderToString($this->template, $this->parameters), './images/email/');
+        $mail->setHtmlBody($latte->renderToString($this->template, $this->parameters), $this->templateStorage.'/images');
 
 
         if (!Debugger::$productionMode) {
@@ -257,5 +281,20 @@ class TemplatedEmail extends Nette\Object
 
         //Reset everything after send
         $this->reset();
+    }
+
+    /**
+     * @param $dir
+     */
+    private function mkdir($dir)
+    {
+        $oldMask = umask(0);
+        @mkdir($dir, 0777, true);
+        @chmod($dir, 0777);
+        umask($oldMask);
+
+        if (!is_dir($dir) || !is_writable($dir)) {
+            throw new IOException("Please create writable directory $dir.");
+        }
     }
 }

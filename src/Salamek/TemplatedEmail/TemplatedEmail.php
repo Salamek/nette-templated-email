@@ -2,6 +2,7 @@
 
 namespace Salamek\TemplatedEmail;
 
+
 use Nette\Application\Application;
 use Nette\Bridges\ApplicationLatte\UIMacros;
 use Nette\Http\Request;
@@ -78,6 +79,7 @@ class TemplatedEmail extends Object
      * @param $fromEmail
      * @param Request $httpRequest
      * @param IMailer $mailer
+     * @param Application $application
      * @param ITranslator|null $translator
      */
     public function __construct($sendEmailDebugStorage, $templateStorage, $fromName, $fromEmail, Request $httpRequest, IMailer $mailer, Application $application, ITranslator $translator = null)
@@ -105,8 +107,7 @@ class TemplatedEmail extends Object
     public function __call($name, $parameters)
     {
         $this->reset();
-        $this->addTemplate($this->templateStorage . '/@layout.latte');
-        $this->addTemplate($this->templateStorage . '/' . $name . '.latte');
+        $this->setTemplate($this->templateStorage . '/' . $name . '.latte');
         $this->setParameters($parameters[0]);
 
         return $this;
@@ -180,7 +181,7 @@ class TemplatedEmail extends Object
 
     public function reset()
     {
-        $this->template = '';
+        $this->template = null;
         $this->setFrom = null;
         $this->addTo = [];
         $this->parameters = [];
@@ -190,16 +191,16 @@ class TemplatedEmail extends Object
     }
 
     /**
-     * @param $latte
+     * @param $template
      * @throws \Exception
      */
-    public function addTemplate($latte)
+    public function setTemplate($template)
     {
-        if (!is_file($latte)) {
+        if (!is_file($template)) {
             throw new \Exception(sprintf('Mail template %s not found', $latte));
         }
 
-        $this->template .= file_get_contents($latte);
+        $this->template = $template;
     }
 
     /**
@@ -284,13 +285,13 @@ class TemplatedEmail extends Object
             $mail->addAttachment($addAttachment);
         }
 
+
         $latte = new Engine;
-        $latte->setLoader(new StringLoader());
+        //$latte->setLoader(new StringLoader());
         if ($this->translator) {
             $latte->addFilter('translate', $this->translator === null ? null : [$this->translator, 'translate']);
         }
 
-        
         $latte->addProvider('uiPresenter', $this->presenter);
         $latte->addProvider('uiControl', $this->presenter);
 

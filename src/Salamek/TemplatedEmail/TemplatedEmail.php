@@ -197,7 +197,7 @@ class TemplatedEmail extends Object
     public function setTemplate($template)
     {
         if (!is_file($template)) {
-            throw new \Exception(sprintf('Mail template %s not found', $latte));
+            throw new \Exception(sprintf('Mail template %s not found', $template));
         }
 
         $this->template = $template;

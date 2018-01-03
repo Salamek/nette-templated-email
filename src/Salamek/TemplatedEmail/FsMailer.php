@@ -10,10 +10,17 @@ use Nette\Mail\IMailer;
 use Nette\Mail\Message;
 use Nette\Utils\Strings;
 
-class FsMailer extends Nette\Object implements IMailer
+class FsMailer implements IMailer
 {
+    use Nette\SmartObject;
+
+    /** @var string */
     private $targetDir;
 
+    /**
+     * FsMailer constructor.
+     * @param string $targetDir
+     */
     public function __construct($targetDir)
     {
         $this->targetDir = $targetDir;
@@ -21,6 +28,7 @@ class FsMailer extends Nette\Object implements IMailer
 
     /**
      * Sends email.
+     * @param Message $mail
      * @return void
      */
     public function send(Message $mail)

@@ -14,14 +14,15 @@ use Nette\Utils\Strings;
 use Latte\Loaders\StringLoader;
 use Latte\Engine;
 use Tracy\Debugger;
-use Nette\Object;
+use Nette;
 
 /**
  * Class TemplatedEmail
  * @package Salamek\TemplatedEmail
  */
-class TemplatedEmail extends Object
+class TemplatedEmail
 {
+    use Nette\SmartObject;
 
     /** @var Request */
     private $httpRequest;

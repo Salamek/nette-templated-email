@@ -5,14 +5,14 @@
 
 namespace Salamek\TemplatedEmail;
 
-use Nette;
-use Nette\Mail\IMailer;
+use Nette\Mail\Mailer;
 use Nette\Mail\Message;
+use Nette\SmartObject;
 use Nette\Utils\Strings;
 
-class FsMailer implements IMailer
+class FsMailer implements Mailer
 {
-    use Nette\SmartObject;
+    use SmartObject;
 
     /** @var string */
     private $targetDir;
@@ -21,7 +21,7 @@ class FsMailer implements IMailer
      * FsMailer constructor.
      * @param string $targetDir
      */
-    public function __construct($targetDir)
+    public function __construct(string $targetDir)
     {
         $this->targetDir = $targetDir;
     }
@@ -31,7 +31,7 @@ class FsMailer implements IMailer
      * @param Message $mail
      * @return void
      */
-    public function send(Message $mail)
+    public function send(Message $mail): void
     {
         $tmp = clone $mail;
         $tmp->setHeader('Subject', null);

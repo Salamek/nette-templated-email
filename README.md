@@ -15,7 +15,7 @@ Then you have to register extension in `config.neon`.
 
 ```yaml
 extensions:
-	templatedEmail: Salamek\TemplatedEmail\DI\TemplatedEmailExtension
+	templatedEmail: Salamek\TemplatedEmail\DI\TemplatedEmailExtension(%debugMode%)
 
 templatedEmail:
     sendEmailDebugStorage: %tempDir%/sendEmails

@@ -10,10 +10,10 @@
 		}
 	],
 	"require": {
-        "nette/di": "~2.2",
-        "nette/http": "~2.2",
-        "nette/utils": "~2.2",
-	  	"nette/finder": "~2.2"
+		"nette/application": "^3.0.9",
+		"nette/di": "^3.0.9",
+        "nette/mail": "^3.0.9",
+	  	"nette/finder": "^2.5.2"
 	},
 	"require-dev": {
 		"nette/tester": "@dev"

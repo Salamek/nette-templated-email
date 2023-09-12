@@ -42,6 +42,12 @@ class TemplatedEmail
     private $addTo = [];
 
     /** @var array */
+    private $addBcc = [];
+
+    /** @var array */
+    private $addCc = [];
+
+    /** @var array */
     private $parameters = [];
 
     /** @var null|string */
@@ -201,6 +207,8 @@ class TemplatedEmail
         $this->template = null;
         $this->setFrom = null;
         $this->addTo = [];
+        $this->addBcc = [];
+        $this->addCc = [];
         $this->parameters = [];
         $this->setSubject = null;
         $this->addReplyTo = null;
@@ -239,6 +247,28 @@ class TemplatedEmail
     public function addTo(string $email, string $name = null): TemplatedEmail
     {
         $this->addTo[] = [$email, $name];
+        return $this;
+    }
+
+    /**
+     * @param string $email
+     * @param string|null $name
+     * @return $this
+     */
+    public function addBcc(string $email, string $name = null): TemplatedEmail
+    {
+        $this->addBcc[] = [$email, $name];
+        return $this;
+    }
+
+    /**
+     * @param string $email
+     * @param string|null $name
+     * @return $this
+     */
+    public function addCc(string $email, string $name = null): TemplatedEmail
+    {
+        $this->addCc[] = [$email, $name];
         return $this;
     }
 
@@ -288,6 +318,14 @@ class TemplatedEmail
 
         foreach ($this->addTo AS $addTo) {
             $mail->addTo($addTo[0], $addTo[1]);
+        }
+
+        foreach ($this->addBcc AS $addBcc) {
+            $mail->addTo($addBcc[0], $addBcc[1]);
+        }
+
+        foreach ($this->addCc AS $addCc) {
+            $mail->addTo($addCc[0], $addCc[1]);
         }
 
         if ($this->setSubject) {

@@ -306,7 +306,7 @@ class TemplatedEmail
     /**
      *
      */
-    public function send(): void
+    public function send(): bool
     {
         $mail = new Message;
 
@@ -359,10 +359,27 @@ class TemplatedEmail
             $mailer = $this->mailer;
         }
 
-        $mailer->send($mail);
+        try {
+            $mailer->send($mail);
+            $emailOk = true;
+        }
+        catch (\Exception $e)
+        {
+            $errorMessage = $e->getMessage();
+            // Hack for this excpetion that sends email but throws this error
+            if (strpos($errorMessage, 'SMTP server did not accept . with error:') === false) {
+                // Some other error, email was not send.
+                $emailOk = false;
+            } else {
+                // Our stupid error, email was send, ignore and contiune
+                $emailOk = true;
+            }
+        }
 
         //Reset everything after send
         $this->reset();
+
+        return $emailOk;
     }
 
     /**

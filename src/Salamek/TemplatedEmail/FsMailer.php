@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Copyright (C) 2016 Adam Schubert <adam.schubert@sg1-game.net>.
  */
@@ -14,8 +17,7 @@ class FsMailer implements Mailer
 {
     use SmartObject;
 
-    /** @var string */
-    private $targetDir;
+    private string $targetDir;
 
     /**
      * FsMailer constructor.

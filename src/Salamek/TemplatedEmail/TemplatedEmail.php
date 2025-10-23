@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Salamek\TemplatedEmail;
 
 use Nette\Application\LinkGenerator;
@@ -23,70 +25,45 @@ class TemplatedEmail
 {
     use SmartObject;
 
-    /** @var bool */
-    private $debugMode;
+    private bool $debugMode;
 
-    /** @var Request */
-    private $httpRequest;
+    private Request $httpRequest;
 
-    /** @var string */
-    private $template = '';
+    private ?string $template = '';
 
-    /** @var null|Translator */
-    private $translator = null;
+    private ?Translator $translator = null;
 
-    /** @var null|array */
-    private $setFrom = null;
+    private ?array $setFrom = null;
 
-    /** @var array */
-    private $addTo = [];
+    private array $addTo = [];
 
-    /** @var array */
-    private $addBcc = [];
+    private array $addBcc = [];
 
-    /** @var array */
-    private $addCc = [];
+    private array $addCc = [];
 
-    /** @var array */
-    private $parameters = [];
+    private array $parameters = [];
 
-    /** @var null|string */
-    private $setSubject = null;
+    private ?string $setSubject = null;
 
-    /** @var null|string */
-    private $addReplyTo = null;
+    private ?array $addReplyTo = null;
 
-    /** @var array */
-    private $addAttachment = [];
+    private array $addAttachment = [];
 
-    /** @var string */
-    private $sendEmailDebugStorage;
+    private string $sendEmailDebugStorage;
 
-    /** @var string */
-    private $templateStorage;
+    private string $templateStorage;
 
-    /** @var string */
-    private $fromName;
+    private Mailer $mailer;
 
-    /** @var string */
-    private $fromEmail;
+    private LatteFactory $latteFactory;
 
-    /** @var Mailer */
-    private $mailer;
-
-    /** @var LatteFactory */
-    private $latteFactory;
-
-    /** @var LinkGenerator */
-    private $linkGenerator;
+    private LinkGenerator $linkGenerator;
 
     /**
      * TemplatedEmail constructor.
      * @param bool $debugMode
      * @param string $sendEmailDebugStorage
      * @param string $templateStorage
-     * @param string $fromName
-     * @param string $fromEmail
      * @param Request $httpRequest
      * @param Mailer $mailer
      * @param LatteFactory $latteFactory
@@ -97,8 +74,6 @@ class TemplatedEmail
         bool $debugMode,
         string $sendEmailDebugStorage,
         string $templateStorage,
-        string $fromName,
-        string $fromEmail,
         Request $httpRequest,
         Mailer $mailer,
         LatteFactory $latteFactory,
@@ -109,8 +84,6 @@ class TemplatedEmail
         $this->debugMode = $debugMode;
         $this->sendEmailDebugStorage = $sendEmailDebugStorage;
         $this->templateStorage = $templateStorage;
-        $this->fromName = $fromName;
-        $this->fromEmail = $fromEmail;
         $this->httpRequest = $httpRequest;
         $this->mailer = $mailer;
         $this->translator = $translator;
@@ -161,22 +134,6 @@ class TemplatedEmail
     }
 
     /**
-     * @param string $fromName
-     */
-    public function setFromName(string $fromName): void
-    {
-        $this->fromName = $fromName;
-    }
-
-    /**
-     * @param string $fromEmail
-     */
-    public function setFromEmail(string $fromEmail): void
-    {
-        $this->fromEmail = $fromEmail;
-    }
-
-    /**
      * @param string $email
      * @param string|null $name
      * @return TemplatedEmail
@@ -192,11 +149,7 @@ class TemplatedEmail
             $parts[] = $this->httpRequest->getUrl()->host;
         }
 
-        if (!$name) {
-            $name = $this->fromName;
-        }
-
-        $this->setFrom = array(implode($emailDelimiter, $parts), $name);
+        $this->setFrom = [implode($emailDelimiter, $parts), $name];
 
 
         return $this;
@@ -312,8 +265,6 @@ class TemplatedEmail
 
         if ($this->setFrom) {
             $mail->setFrom($this->setFrom[0], $this->setFrom[1]);
-        } else {
-            $mail->setFrom($this->fromEmail, $this->fromName);
         }
 
         foreach ($this->addTo AS $addTo) {

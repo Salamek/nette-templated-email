@@ -53,6 +53,10 @@ class TemplatedEmail
 
     private string $templateStorage;
 
+    private string $fromName;
+
+    private string $fromEmail;
+
     private Mailer $mailer;
 
     private LatteFactory $latteFactory;
@@ -74,6 +78,8 @@ class TemplatedEmail
         bool $debugMode,
         string $sendEmailDebugStorage,
         string $templateStorage,
+        string $fromName,
+        string $fromEmail,
         Request $httpRequest,
         Mailer $mailer,
         LatteFactory $latteFactory,
@@ -84,6 +90,8 @@ class TemplatedEmail
         $this->debugMode = $debugMode;
         $this->sendEmailDebugStorage = $sendEmailDebugStorage;
         $this->templateStorage = $templateStorage;
+        $this->fromName = $fromName;
+        $this->fromEmail = $fromEmail;
         $this->httpRequest = $httpRequest;
         $this->mailer = $mailer;
         $this->translator = $translator;
@@ -134,6 +142,22 @@ class TemplatedEmail
     }
 
     /**
+     * @param string $fromName
+     */
+    public function setFromName(string $fromName): void
+    {
+        $this->fromName = $fromName;
+    }
+
+    /**
+     * @param string $fromEmail
+     */
+    public function setFromEmail(string $fromEmail): void
+    {
+        $this->fromEmail = $fromEmail;
+    }
+
+    /**
      * @param string $email
      * @param string|null $name
      * @return TemplatedEmail
@@ -147,6 +171,10 @@ class TemplatedEmail
         //Add missing domain name
         if (count($parts) == 1) {
             $parts[] = $this->httpRequest->getUrl()->host;
+        }
+
+        if (!$name) {
+            $name = $this->fromName;
         }
 
         $this->setFrom = [implode($emailDelimiter, $parts), $name];
@@ -265,6 +293,8 @@ class TemplatedEmail
 
         if ($this->setFrom) {
             $mail->setFrom($this->setFrom[0], $this->setFrom[1]);
+        } else {
+            $mail->setFrom($this->fromEmail, $this->fromName);
         }
 
         foreach ($this->addTo AS $addTo) {

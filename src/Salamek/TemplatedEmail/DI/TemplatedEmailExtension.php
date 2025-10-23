@@ -31,7 +31,9 @@ class TemplatedEmailExtension extends Nette\DI\CompilerExtension
             ->setFactory(TemplatedEmail::class, [
                 $this->debugMode,
                 $config['sendEmailDebugStorage'],
-                $config['templateStorage']
+                $config['templateStorage'],
+                $config['fromName'],
+                $config['fromEmail']
             ]);
     }
 }
